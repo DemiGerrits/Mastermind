@@ -1,0 +1,230 @@
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Collections;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+import java.util.List; 
+
+
+
+public class OpdrachtMastermind extends JFrame { 
+	public static void main( String[] args ) { 
+		// Maak een frame 
+		JFrame frame = new OpdrachtMastermind(); 
+		frame.setSize( 700, 800 ); 
+		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );      
+		frame.setTitle( "Mastermind" );   
+		JPanel paneel = new Paneel(); 
+		frame.setContentPane(paneel); 
+		frame.setVisible( true ); 
+	} } 
+class Paneel extends JPanel { 
+	Color kleurBord, kleurBordRondjes, kleurKleineRondjes; 
+	Color [] [] kleurArrayBord; 
+	Color [] [] kleurArrayBordKlein; 
+	Color [] kleurArrayAnoniem; 
+	Color [] kleuren;
+	private JButton groenKnop, geelKnop, roodKnop, rozeKnop, blauwKnop, oranjeKnop; 
+	int rij, kolom, geklikt, tellerZwart, tellerWit; 
+	private Timer timer; 
+	int  timerTeller = 0; 
+
+
+
+	public Paneel() { 
+		kleurBord = new Color(181,112,51); 
+		kleurBordRondjes = new Color(226,156,94); 
+		kleurKleineRondjes = new Color(255, 255, 255); 
+		kleurArrayBord = new Color[10] [4];  
+		kleurArrayBordKlein = new Color [10] [4]; 
+		kleurArrayAnoniem = new Color [4]; 
+		kleuren = new Color [6];
+		rij = 0; 
+		kolom = 0; 
+		geklikt = 0; 
+		timer = new Timer(150, new TimerHandler()); 
+		for (int rij = 0; rij < 10; rij++) { 
+			for (int kolom = 0; kolom < 4; kolom++) { 
+
+				// Grote rondjes 
+				kleurArrayBord[rij] [kolom] = kleurBordRondjes; 
+
+				// Kleine rondjes 
+				kleurArrayBordKlein[rij] [kolom] = kleurBordRondjes; 
+			} } 
+
+		groenKnop = new JButton("Groen"); 
+		groenKnop.addActionListener( new GroenKnopHandler() ); 
+		groenKnop.setBackground(Color.green); 
+		add(groenKnop); 
+		geelKnop = new JButton("Geel"); 
+		geelKnop.addActionListener( new GeelKnopHandler() ); 
+		geelKnop.setBackground(Color.yellow); 
+
+		add(geelKnop); 
+		roodKnop = new JButton("Rood"); 
+		roodKnop.addActionListener( new RoodKnopHandler() ); 
+		roodKnop.setBackground(Color.red); 
+		add(roodKnop); 
+		rozeKnop = new JButton("Roze"); 
+		rozeKnop.addActionListener( new RozeKnopHandler() ); 
+		rozeKnop.setBackground(Color.pink); 
+		add(rozeKnop); 
+		blauwKnop = new JButton("Blauw"); 
+		blauwKnop.addActionListener( new BlauwKnopHandler() ); 
+		blauwKnop.setBackground(Color.blue); 
+		add(blauwKnop); 
+		oranjeKnop = new JButton("Oranje"); 
+		oranjeKnop.addActionListener( new OranjeKnopHandler() ); 
+		oranjeKnop.setBackground(Color.orange); 
+		add(oranjeKnop); 
+
+		kleurVulAnoniem(); 
+	} 
+
+	class TimerHandler implements ActionListener { 
+		public void actionPerformed(ActionEvent e) { 
+			timerTeller++; 
+
+			for (int kolom = 0; kolom < 4; kolom++) { 
+				if (timerTeller % 10 > 5) { 
+					kleurArrayBord[rij] [kolom] = kleurArrayAnoniem [kolom]; 
+					repaint(); 
+				} else { 
+					kleurArrayBord[rij] [kolom] = kleurBordRondjes; 
+					repaint(); 
+				} } } } 
+
+	public void spelen(Color kleur, JButton knop) { 
+		kleurArrayBord[rij] [kolom] = kleur; 
+		knop.setEnabled(false); 
+		repaint(); 
+		kolom++; 
+		geklikt++; 
+		if (geklikt == 4) { 
+			controleren(); 
+			kolom = 0; 
+			geklikt = 0; 
+			rij++; 
+			groenKnop.setEnabled(true); 
+			geelKnop.setEnabled(true); 
+			roodKnop.setEnabled(true); 
+			rozeKnop.setEnabled(true); 
+			blauwKnop.setEnabled(true); 
+			oranjeKnop.setEnabled(true); 
+		} 
+		if (tellerZwart == 4) { 
+			rij--; 
+			JOptionPane.showMessageDialog(null,"Je hebt alles geraden!");
+			timer.start(); 
+		} } 
+
+	// 1 = 1, 2 = 2, 3 = 3, 0 = 4 
+	public void controleren() { 
+		int teller = 0; 
+		tellerZwart = 0; 
+		tellerWit = 0; 
+		for (int i = 0; i < 4; i++) { 
+			for (int j = 0; j < 4; j++) { 
+				if (kleurArrayBord[rij] [i] == kleurArrayAnoniem[j]) { 
+					if (i == j) { 
+						tellerZwart++; 
+					} else { 
+						tellerWit++; 
+					} } } } 
+		for (int i = tellerWit; i > 0; i--) { 
+			kleurArrayBordKlein [rij] [teller] = Color.white; 
+			teller++; 
+		} 
+
+		for (int i = tellerZwart; i > 0; i--) { 
+			kleurArrayBordKlein [rij] [teller] = Color.black; 
+			teller++; 
+		} }
+
+	public void kleurVulAnoniem() { 
+		kleuren [0] = Color.green; 
+		kleuren [1] = Color.pink; 
+		kleuren [2] = Color.blue; 
+		kleuren [3] = Color.red; 
+		kleuren [4] = Color.orange; 
+		kleuren [5] = Color.yellow; 
+
+		List<Color> targetList = Arrays.asList(kleuren);
+		Collections.shuffle(targetList);
+		targetList.toArray(kleuren);
+
+		kleurArrayAnoniem [0] = kleuren [0];
+		kleurArrayAnoniem [1] = kleuren [1];
+		kleurArrayAnoniem [2] = kleuren [2];
+		kleurArrayAnoniem [3] = kleuren [3];
+
+	} 
+
+	class GroenKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.green, groenKnop); 
+		} } 
+
+	class GeelKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.yellow, geelKnop); 
+		} } 
+
+	class RoodKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.red, roodKnop); 
+		} } 
+
+	class RozeKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.pink, rozeKnop); 
+		} } 
+
+	class BlauwKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.blue, blauwKnop); 
+		} } 
+
+	class OranjeKnopHandler implements ActionListener {      
+		public void actionPerformed( ActionEvent e ) {  
+			spelen(Color.orange, oranjeKnop); 
+		} } 
+
+	public void paintComponent( Graphics g ) { 
+		super.paintComponent( g ); 
+		g.setColor(kleurBord); 
+		g.fillRect(100, 100, 350, 600); 
+		// Grote rondjes 
+
+		for (int rij = 0; rij < 10; rij++) { 
+			for (int kolom = 0; kolom < 4; kolom++) { 
+
+				// Grote rondjes 
+				g.setColor(kleurArrayBord[rij] [kolom]); 
+				g.fillOval(120 + 50 * kolom, 120 + 50 * rij, 40, 40); 
+
+				// Kleine rondjes 
+				g.setColor(kleurArrayBordKlein[rij] [kolom]); 
+				g.fillOval(335 + 25 * kolom, 130 + 50 * rij, 20, 20); 
+			} } 
+
+
+		g.drawString("Wit: " + tellerWit, 75, 75); 
+		g.drawString("Zwart: " + tellerZwart, 150, 75); 
+
+		/*for (int i = 0; i < 4; i++) { 
+			g.setColor(kleurArrayAnoniem[i]); 
+			g.fillOval(175 + 50 * i, 650, 40, 40); 
+
+		} */
+		} }
